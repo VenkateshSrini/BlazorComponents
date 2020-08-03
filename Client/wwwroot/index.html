@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>BlazorComponent</title>
+    <base href="/" />
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/app.css" rel="stylesheet" />
+    <link href="https://vjs.zencdn.net/7.8.4/video-js.css" rel="stylesheet" />
+</head>
+
+<body>
+    <app>Loading...</app>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <script src="_framework/blazor.webassembly.js"></script>
+    <script src="https://vjs.zencdn.net/7.8.4/video.js"></script>
+    <script>
+        window.getVideoDetails = (controlId,key) => {
+            var player = videojs(controlId);
+            var playerState = {duration:0, remainingTime:0}
+            player.ready(function () {
+                //alert("1");
+                var lengthOfVideo = player.duration();
+                var remainingTime = player.remainingTime();
+                //alert(lengthOfVideo);
+                //alert(remainingTime);
+                playerState.duration = lengthOfVideo;
+                playerState.remainingTime = remainingTime;
+                window.localStorage.setItem(key, JSON.stringify(playerState));
+                
+            });
+           
+            return key;
+        };
+        window.disposePlayer = (controlId)=>
+        {
+            alert("1");
+            var videoElement = document.getElementById(controlId);
+            try {
+                if (videoElement != null)
+                    videoElement.remove();
+            }
+            catch (ex) {
+
+            }
+            
+            return 'true';
+        }
+    </script>
+</body>
+
+</html>

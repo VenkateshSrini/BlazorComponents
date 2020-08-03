@@ -1,0 +1,25 @@
+﻿@page "/counter"
+@using BlazorComponent.Client.InterApp.Services;
+@inject IStateManagement viewState;
+@inject NavigationManager navigationManager;
+<h1>Counter</h1>
+
+<p>Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<button class="btn btn-primary" @onclick="NavigateToPlayer">Player </button>
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+    private void NavigateToPlayer()
+    {
+        viewState.SetState<string>("videoURL", "http://vjs.zencdn.net/v/oceans.mp4");
+        viewState.SetState<string>("videoType", "video/mp4");
+        navigationManager.NavigateTo($"/videoplayer/video-123");
+    }
+
+}

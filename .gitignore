@@ -1,0 +1,14 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/BlazorComponent/DesignTimeBuild
+/.vs/BlazorComponent/v16
+/.vs/BlazorComponents/v16
+/.vs
+/Client/bin/Debug/netstandard2.1
+/Client/obj
+/Server/bin/Debug/netcoreapp3.1
+/Server/obj
+/Shared/bin/Debug/netstandard2.1
+/Shared/obj

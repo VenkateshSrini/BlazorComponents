@@ -1,0 +1,45 @@
+﻿@page "/videoplayer/{key}"
+@using System.Threading.Tasks;
+@using BlazorComponent.Client.InterApp;
+@using System.Timers;
+@inject IJSRuntime jsRuntime;
+@inject BlazorComponent.Client.InterApp.Services.IStateManagement viewState;
+@implements IDisposable;
+
+
+    <video id="vide_plyr"
+           class ="video-js"
+           controls
+           data-setup="{}">
+        <source src="@videoSource" type="@videoType" />
+
+    </video>
+    
+    @code {
+        [Parameter]
+        public string Key { get; set; }
+        public string videoSource { get; set; }
+        private Timer timer = new Timer(1000);
+
+        public string videoType { get; set; }
+        protected override void OnInitialized()
+        {
+            videoSource = viewState.GetState<string>("videoURL");
+            videoType = viewState.GetState<string>("videoType");
+            timer.Elapsed += TimeHandler;
+            timer.Enabled = true;
+            timer.Start();
+
+        }
+        public void TimeHandler(object source, ElapsedEventArgs e)
+        {
+            var playerJson = jsRuntime.InvokeAsync<string>("getVideoDetails", "vide_plyr", Key);
+        }
+        public void Dispose()
+        {
+            var disposeState = jsRuntime.InvokeAsync<string>("disposePlayer", "vide_plyr");
+            timer.Dispose();
+
+        }
+
+    }
