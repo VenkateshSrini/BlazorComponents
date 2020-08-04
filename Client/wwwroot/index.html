@@ -42,7 +42,7 @@
         window.disposePlayer = (controlId)=>
         {
             alert("1");
-            var videoElement = document.getElementById(controlId);
+            var videoElement = videojs(controlId);
             try {
                 if (videoElement != null)
                     videoElement.remove();

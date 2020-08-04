@@ -5,41 +5,49 @@
 @inject IJSRuntime jsRuntime;
 @inject BlazorComponent.Client.InterApp.Services.IStateManagement viewState;
 @implements IDisposable;
+@implements IAsyncDisposable;
 
-
+<div>
     <video id="vide_plyr"
-           class ="video-js"
+           class="video-js"
            controls
            data-setup="{}">
         <source src="@videoSource" type="@videoType" />
 
     </video>
-    
-    @code {
-        [Parameter]
-        public string Key { get; set; }
-        public string videoSource { get; set; }
-        private Timer timer = new Timer(1000);
+</div>
+@code {
+    [Parameter]
+    public string Key { get; set; }
+    public string videoSource { get; set; }
+    private Timer timer = new Timer(1000);
 
-        public string videoType { get; set; }
-        protected override void OnInitialized()
-        {
-            videoSource = viewState.GetState<string>("videoURL");
-            videoType = viewState.GetState<string>("videoType");
-            timer.Elapsed += TimeHandler;
-            timer.Enabled = true;
-            timer.Start();
-
-        }
-        public void TimeHandler(object source, ElapsedEventArgs e)
-        {
-            var playerJson = jsRuntime.InvokeAsync<string>("getVideoDetails", "vide_plyr", Key);
-        }
-        public void Dispose()
-        {
-            var disposeState = jsRuntime.InvokeAsync<string>("disposePlayer", "vide_plyr");
-            timer.Dispose();
-
-        }
+    public string videoType { get; set; }
+    protected override void OnInitialized()
+    {
+        videoSource = viewState.GetState<string>("videoURL");
+        videoType = viewState.GetState<string>("videoType");
+        timer.Elapsed += async (sender, e) => await HandleTimer(sender, e);
+        timer.Enabled = true;
+        timer.Start();
 
     }
+    public async Task HandleTimer(object source, ElapsedEventArgs e)
+    {
+        await jsRuntime.InvokeVoidAsync("getVideoDetails", "vide_plyr", Key);
+    }
+    public async ValueTask DisposeAsync()
+    {
+        await jsRuntime.InvokeVoidAsync("disposePlayer", "vide_plyr");
+        Dispose();
+
+    }
+    public void Dispose()
+    {
+
+        timer.Dispose();
+        GC.SuppressFinalize(this);
+
+    }
+
+}

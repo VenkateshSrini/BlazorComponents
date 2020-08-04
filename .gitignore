@@ -12,3 +12,7 @@
 /Server/obj
 /Shared/bin/Debug/netstandard2.1
 /Shared/obj
+/Client/bin/Release/netstandard2.1
+/publish
+/Server/bin/Release/netcoreapp3.1
+/Shared/bin/Release/netstandard2.1
