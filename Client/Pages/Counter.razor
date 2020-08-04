@@ -1,16 +1,25 @@
 ﻿@page "/counter"
 @using BlazorComponent.Client.InterApp.Services;
+@using BlazorComponent.Client.InterApp;
 @inject IStateManagement viewState;
 @inject NavigationManager navigationManager;
+@inject Blazored.LocalStorage.ILocalStorageService localStore;
 <h1>Counter</h1>
 
 <p>Current count: @currentCount</p>
 
 <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
-<button class="btn btn-primary" @onclick="NavigateToPlayer">Player </button>
+<button class="btn btn-primary" @onclick="NavigateToPlayer">Player remainTime=@remainTime duration=@totalTime</button>
 @code {
     private int currentCount = 0;
-
+    private float? totalTime = 0;
+    private float? remainTime = 0;
+    protected override async Task OnInitializedAsync()
+    {
+        var videoDetails = await localStore.GetItemAsync<videoDetails>("video-123");
+        totalTime = videoDetails?.duration;
+        remainTime = videoDetails?.remainingTime;
+    }
     private void IncrementCount()
     {
         currentCount++;
