@@ -10,15 +10,25 @@
 
 <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
 <button class="btn btn-primary" @onclick="NavigateToPlayer">Player remainTime=@remainTime duration=@totalTime</button>
+<button class="btn btn-primary" @onclick="NavigateToAudioPlayer">Player Audio remainTime=@audioRemainTime duration=@audioTotalTime</button>
 @code {
     private int currentCount = 0;
     private float? totalTime = 0;
     private float? remainTime = 0;
+    private float? audioTotalTime = 0;
+    private float? audioRemainTime = 0;
     protected override async Task OnInitializedAsync()
     {
         var videoDetails = await localStore.GetItemAsync<videoDetails>("video-123");
         totalTime = videoDetails?.duration;
         remainTime = videoDetails?.remainingTime;
+
+        var audioDetails = await localStore.GetItemAsync<videoDetails>("audio-123");
+        if (audioDetails != default)
+        {
+            audioTotalTime = audioDetails?.duration;
+            audioRemainTime = audioDetails?.remainingTime;
+        }
     }
     private void IncrementCount()
     {
@@ -26,9 +36,16 @@
     }
     private void NavigateToPlayer()
     {
+
         viewState.SetState<string>("videoURL", "http://vjs.zencdn.net/v/oceans.mp4");
         viewState.SetState<string>("videoType", "video/mp4");
         navigationManager.NavigateTo($"/videoplayer/video-123");
+    }
+    private void NavigateToAudioPlayer()
+    {
+        viewState.SetState<string>("audioURL", "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3");
+        viewState.SetState<string>("audioType", "audio/mp3");
+        navigationManager.NavigateTo($"/AudioPlayer/audio-123");
     }
 
 }
