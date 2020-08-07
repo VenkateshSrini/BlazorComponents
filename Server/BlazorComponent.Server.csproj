@@ -15,9 +15,5 @@
     <ProjectReference Include="..\Shared\BlazorComponent.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Repository\" />
-  </ItemGroup>
-
 
 </Project>
