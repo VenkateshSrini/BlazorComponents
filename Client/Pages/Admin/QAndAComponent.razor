@@ -1,0 +1,66 @@
+﻿@using System.Collections.Specialized;
+<h3>QAndAComponent</h3>
+<label for="Questions">Enter Question below</label>
+<textarea id="Questions" rows="3" @bind="qAndA.QuestionText"></textarea>
+<br />
+<button class="btn btn-primary" @onclick="AddAnswerPlaceholder">Add answer</button>
+<table class="table-striped">
+    <tr>
+        <td>
+            Answer Key
+        </td>
+        <td>
+            Answer text
+        </td>
+    </tr>
+    @foreach (var answer in qAndA.Answers)
+    {
+        <tr>
+            <td>
+                <input type="text" @bind="answer.AnswerKey" />
+            </td>
+            <td>
+                <input type="text" @bind="answer.AnswerText" />
+            </td>
+        </tr>
+    }
+</table>
+<br />
+<label for="QuestionType">Choose the Answer Type</label>
+<select @bind="qAndA.AnswerType" id="QuestionType">
+    <option value="@ResponseType.SingleLine">Single</option>
+    <option value="@ResponseType.MultiLine">Multiple</option>
+    <option value="@ResponseType.FreeText">Free Text</option>
+</select>
+<label for="Answerkeys">Enter the solutions as comma separated option</label>
+<input type="text" @bind="answerOptions" id="Answerkeys"/>
+<br />
+<button class="btn btn-primary" @onclick="SubmitQAndA">Add answer</button>
+@code {
+    [Parameter]
+    public EventCallback<QAndA> OnCompleted { get; set; }
+    private string answerOptions { get; set; }
+    private QAndA qAndA = new QAndA();
+
+    private void AddAnswerPlaceholder()
+    {
+        var answer = new Answer();
+        if (qAndA.Answers.Any())
+        {
+            var lastAnsIdx = qAndA.Answers.Max(answer => answer.AnswerId);
+            answer.AnswerId = lastAnsIdx + 1;
+        }
+        else
+            answer.AnswerId = 1;
+        qAndA.Answers.Add(answer);
+        StateHasChanged();
+    }
+    private async Task SubmitQAndA()
+    {
+        qAndA.AnswerKeys = new StringCollection();
+        qAndA.AnswerKeys.AddRange(answerOptions.Split(","));
+        if(OnCompleted.HasDelegate)
+        await OnCompleted.InvokeAsync(qAndA);
+    }
+
+}

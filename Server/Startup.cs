@@ -7,7 +7,7 @@ using Microsoft.Extensions.Hosting;
 using AutoMapper;
 using System.Linq;
 using BlazorComponent.Server.AppConfig;
-
+using BlazorComponent.Server.Repository;
 namespace BlazorComponent.Server
 {
     public class Startup
@@ -28,6 +28,7 @@ namespace BlazorComponent.Server
             services.AddRazorPages();
             services.AddAutoMapper(typeof(Startup));
             services.Configure<MongoDBSettings>(Configuration.GetSection("MongoDBSettings"));
+            services.AddSingleton<IQuizRepo, QuizRepo>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
