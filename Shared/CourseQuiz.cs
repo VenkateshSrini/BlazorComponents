@@ -10,6 +10,6 @@ namespace BlazorComponent.Shared
     {
         [Required]
         public string CourseID { get; set; }
-        public List<QAndA> Quiz { get; set; }
+        public List<QAndA> Quiz { get; set; } 
     }
 }

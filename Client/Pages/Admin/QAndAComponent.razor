@@ -1,66 +1,120 @@
 ﻿@using System.Collections.Specialized;
 <h3>QAndAComponent</h3>
-<label for="Questions">Enter Question below</label>
-<textarea id="Questions" rows="3" @bind="qAndA.QuestionText"></textarea>
-<br />
-<button class="btn btn-primary" @onclick="AddAnswerPlaceholder">Add answer</button>
-<table class="table-striped">
+<table>
     <tr>
         <td>
-            Answer Key
+            <label for="Questions">Enter Question below</label>
         </td>
         <td>
-            Answer text
+            <textarea id="Questions" rows="3" @bind="qAndA.QuestionText"></textarea>
         </td>
     </tr>
-    @foreach (var answer in qAndA.Answers)
-    {
-        <tr>
-            <td>
-                <input type="text" @bind="answer.AnswerKey" />
-            </td>
-            <td>
-                <input type="text" @bind="answer.AnswerText" />
-            </td>
-        </tr>
-    }
+
+    <tr>
+        <td colspan="2">
+            <table class="table-striped">
+                <tr>
+                    <td>
+                        Answer Key
+                    </td>
+                    <td>
+                        Answer text
+                    </td>
+                </tr>
+                @foreach (var answer in qAndA.Answers)
+                {
+                    <tr>
+                        <td>
+                            <input type="text" @bind="answer.AnswerKey" />
+                        </td>
+                        <td>
+                            <input type="text" @bind="answer.AnswerText" />
+                        </td>
+                        <td colspan="2">
+                            <button class="btn btn-primary"
+                                    @onclick="@(e => AddAnswerPlaceholder(answer,true))">
+                                +
+                            </button>
+                        </td>
+                       
+                    </tr>
+                }
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="QuestionType">Choose the Answer Type</label>
+        </td>
+        <td>
+            <select @bind="qAndA.AnswerType" id="QuestionType">
+                <option value="@ResponseType.SingleLine">Single</option>
+                <option value="@ResponseType.MultiLine">Multiple</option>
+                <option value="@ResponseType.FreeText">Free Text</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Answerkeys">Enter the solutions as comma separated option</label>
+        </td>
+        <td>
+            <input type="text" @bind="answerOptions" id="Answerkeys" />
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <button class="btn btn-primary" @onclick="@(async()=>await SubmitQAndA())">Add answer</button>
+        </td>
+    </tr>
 </table>
-<br />
-<label for="QuestionType">Choose the Answer Type</label>
-<select @bind="qAndA.AnswerType" id="QuestionType">
-    <option value="@ResponseType.SingleLine">Single</option>
-    <option value="@ResponseType.MultiLine">Multiple</option>
-    <option value="@ResponseType.FreeText">Free Text</option>
-</select>
-<label for="Answerkeys">Enter the solutions as comma separated option</label>
-<input type="text" @bind="answerOptions" id="Answerkeys"/>
-<br />
-<button class="btn btn-primary" @onclick="SubmitQAndA">Add answer</button>
 @code {
     [Parameter]
     public EventCallback<QAndA> OnCompleted { get; set; }
-    private string answerOptions { get; set; }
-    private QAndA qAndA = new QAndA();
 
-    private void AddAnswerPlaceholder()
+    private QAndA qAndA { get; set; } = new QAndA();
+    private string answerOptions { get; set; }
+
+    private int NumberOfRowsAdded = 1;
+    protected override void OnInitialized()
     {
-        var answer = new Answer();
-        if (qAndA.Answers.Any())
+        ClearControl();
+
+    }
+    private void AddAnswerPlaceholder(Answer answer, bool AddNewRow)
+    {
+
+        //qAndA.Answers.Add(answer);
+        if (AddNewRow)
         {
+            var newAnswerLine = new Answer();
             var lastAnsIdx = qAndA.Answers.Max(answer => answer.AnswerId);
-            answer.AnswerId = lastAnsIdx + 1;
+            newAnswerLine.AnswerId = lastAnsIdx + 1;
+            qAndA.Answers.Add(newAnswerLine);
+            NumberOfRowsAdded++;
+            StateHasChanged();
         }
-        else
-            answer.AnswerId = 1;
-        qAndA.Answers.Add(answer);
-        StateHasChanged();
+
+
+        //else
+        //    answer.AnswerId = 1;
+
+
     }
     private async Task SubmitQAndA()
     {
         qAndA.AnswerKeys = new StringCollection();
         qAndA.AnswerKeys.AddRange(answerOptions.Split(","));
-        if(OnCompleted.HasDelegate)
-        await OnCompleted.InvokeAsync(qAndA);
+        //qAndA.Answers.TrimExcess();
+        if (OnCompleted.HasDelegate)
+            await OnCompleted.InvokeAsync(qAndA);
+    }
+    public void ClearControl()
+    {
+        qAndA = new QAndA();
+        var answer = new Answer();
+        answer.AnswerId = 1;
+        qAndA.Answers.Add(answer);
     }
 
 }

@@ -1,0 +1,22 @@
+﻿@page "/Admin/CourseQuizManager"
+@using BlazorComponent.Client.Pages.Admin;
+<h3>CourseQuizManager</h3>
+<select id="Course" @bind="courseQuiz.CourseID">
+    <option value="0">--Select--</option>
+    <option value="Coo1">.NET Core</option>
+    <option value="Coo2">BigData</option>
+    <option value="Coo3">Architecture</option>
+</select>
+<QAndAComponent  OnCompleted="AddQAndA" @ref="qAndAComponent"/>
+@code {
+    private CourseQuiz courseQuiz = new CourseQuiz();
+    QAndAComponent qAndAComponent;
+
+    private void AddQAndA(QAndA qAndA)
+    {
+        if (courseQuiz.Quiz == null)
+            courseQuiz.Quiz = new List<QAndA>();
+        courseQuiz.Quiz.Add(qAndA);
+        qAndAComponent.ClearControl();
+    }
+}
