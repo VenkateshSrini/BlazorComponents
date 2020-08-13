@@ -9,7 +9,7 @@ namespace BlazorComponent.Shared
     {
         public int QuestionID { get; set; }
         public string QuestionText { get; set; }
-        public StringCollection AnswerKeys { get; set; } = new StringCollection();
+        public List<string> AnswerKeys { get; set; } = new List<string>();
         public List<Answer> Answers { get; set; } = new List<Answer>();
         public ResponseType AnswerType { get; set; }
     }

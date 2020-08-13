@@ -1,39 +1,45 @@
 ﻿@using System.Collections.Specialized;
-<h3>QAndAComponent</h3>
-<table>
-    <tr>
-        <td>
+
+<table width="100%" style="border-color:black;border-style:solid;border-width:1px">
+    <tr style="border-bottom: 1px solid black">
+        <td width="30%">
             <label for="Questions">Enter Question below</label>
         </td>
         <td>
-            <textarea id="Questions" rows="3" @bind="qAndA.QuestionText"></textarea>
+            <textarea style="width:100%;box-sizing:border-box;height:100%" id="Questions" rows="3" @bind="qAndA.QuestionText"></textarea>
         </td>
     </tr>
 
-    <tr>
-        <td colspan="2">
-            <table class="table-striped">
+    <tr style="border-bottom: 1px solid black">
+        <td colspan="2" >
+            <table width ="70%"   style="align-content:center">
                 <tr>
-                    <td>
+                    <td align="center" width="50%">
                         Answer Key
                     </td>
-                    <td>
+                    <td align="center" width="50%">
                         Answer text
                     </td>
                 </tr>
                 @foreach (var answer in qAndA.Answers)
                 {
                     <tr>
-                        <td>
-                            <input type="text" @bind="answer.AnswerKey" />
+                        <td >
+                            <input type="text" @bind="answer.AnswerKey" style="width:100%;box-sizing: border-box;height:100%"/>
                         </td>
-                        <td>
-                            <input type="text" @bind="answer.AnswerText" />
+                        <td >
+                            <input type="text" @bind="answer.AnswerText" style="width:100%;box-sizing: border-box;height:100%" multiple/>
                         </td>
-                        <td colspan="2">
+                        <td colspan="2" width="100%">
                             <button class="btn btn-primary"
                                     @onclick="@(e => AddAnswerPlaceholder(answer,true))">
                                 +
+                            </button>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary"
+                                    @onclick="@(e => RemoveRow(answer))">
+                                -
                             </button>
                         </td>
                        
@@ -42,7 +48,7 @@
             </table>
         </td>
     </tr>
-    <tr>
+    <tr style="border-bottom: 1px solid black">
         <td>
             <label for="QuestionType">Choose the Answer Type</label>
         </td>
@@ -54,7 +60,7 @@
             </select>
         </td>
     </tr>
-    <tr>
+    <tr style="border-bottom: 1px solid black">
         <td>
             <label for="Answerkeys">Enter the solutions as comma separated option</label>
         </td>
@@ -62,12 +68,13 @@
             <input type="text" @bind="answerOptions" id="Answerkeys" />
         </td>
     </tr>
-    <tr>
-        <td colspan="2">
+    <tr style="border-bottom: 1px solid black">
+        <td colspan="2" align="center">
             <button class="btn btn-primary" @onclick="@(async()=>await SubmitQAndA())">Add answer</button>
         </td>
     </tr>
 </table>
+<br/>
 @code {
     [Parameter]
     public EventCallback<QAndA> OnCompleted { get; set; }
@@ -94,16 +101,18 @@
             NumberOfRowsAdded++;
             StateHasChanged();
         }
-
-
-        //else
-        //    answer.AnswerId = 1;
-
-
+    }
+    private void RemoveRow(Answer answer)
+    {
+        if (qAndA.Answers.Any())
+        {
+            qAndA.Answers.Remove(answer);
+            StateHasChanged();
+        }
     }
     private async Task SubmitQAndA()
     {
-        qAndA.AnswerKeys = new StringCollection();
+        qAndA.AnswerKeys = new List<string>();
         qAndA.AnswerKeys.AddRange(answerOptions.Split(","));
         //qAndA.Answers.TrimExcess();
         if (OnCompleted.HasDelegate)

@@ -21,6 +21,7 @@ namespace BlazorComponent.Server.Controllers
             this.quizRepo = quizRepo;
             this.logger = logger;
         }
+        [HttpPost]
         public async Task<ActionResult<CourseQuiz>> Add(CourseQuiz courseQuiz)
         {
             try
@@ -28,6 +29,7 @@ namespace BlazorComponent.Server.Controllers
                 if (ModelState.IsValid)
                 {
                     return  Ok(await quizRepo.AddQuizAsync(courseQuiz));
+                    
                 }
                 else
                     return BadRequest(ModelState);
@@ -43,6 +45,7 @@ namespace BlazorComponent.Server.Controllers
                 });
             }
         }
+        [HttpGet]
         public async Task<ActionResult<CourseQuiz>> GetQuiz(string courseId)
         {
             try

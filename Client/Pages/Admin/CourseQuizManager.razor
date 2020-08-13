@@ -1,22 +1,63 @@
 ﻿@page "/Admin/CourseQuizManager"
 @using BlazorComponent.Client.Pages.Admin;
-<h3>CourseQuizManager</h3>
+@using System.Text.Json;
+@inject HttpClient httpClient
+@inject NavigationManager UriHelper
+<h3>Course Quiz Manager</h3>
+<lable for ="Course">Choose the course for which you want to add Question</lable>
 <select id="Course" @bind="courseQuiz.CourseID">
     <option value="0">--Select--</option>
     <option value="Coo1">.NET Core</option>
     <option value="Coo2">BigData</option>
     <option value="Coo3">Architecture</option>
 </select>
-<QAndAComponent  OnCompleted="AddQAndA" @ref="qAndAComponent"/>
+<QAndAComponent OnCompleted="AddQAndA" @ref="qAndAComponent" />
+<br />
+<br/>
+<button class="btn btn-primary" @onclick="@(async()=>await SubmitCourseQuestions())">Submit Quiz for Selected Course</button>
+<p><font color="@fontColor">@SubmitStatus</font></p>
 @code {
     private CourseQuiz courseQuiz = new CourseQuiz();
+    private string SubmitStatus { get; set; }
+    private string fontColor;
     QAndAComponent qAndAComponent;
 
     private void AddQAndA(QAndA qAndA)
     {
+        var maxQnadAIdx = 1;
         if (courseQuiz.Quiz == null)
+        {
             courseQuiz.Quiz = new List<QAndA>();
+        }
+        else
+        {
+            maxQnadAIdx = courseQuiz.Quiz.Max(qA => qA.QuestionID);
+            maxQnadAIdx = maxQnadAIdx + 1;
+        }
+        qAndA.QuestionID = maxQnadAIdx;
         courseQuiz.Quiz.Add(qAndA);
         qAndAComponent.ClearControl();
+    }
+    public async Task SubmitCourseQuestions()
+    {
+        var baseUri = UriHelper.BaseUri.ToString();
+
+
+        var response = await httpClient.PostAsJsonAsync<CourseQuiz>($"{baseUri}api/QAndA",
+            courseQuiz);
+        if (response.IsSuccessStatusCode)
+        {
+            SubmitStatus = "Course Quiz added successfully";
+            fontColor = "green";
+            var newReceipe = await response.Content.ReadFromJsonAsync<CourseQuiz>();
+
+        }
+        else
+        {
+            SubmitStatus = response.ReasonPhrase;
+            fontColor = "red";
+
+        }
+
     }
 }
