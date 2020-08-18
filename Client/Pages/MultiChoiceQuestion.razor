@@ -1,0 +1,101 @@
+﻿@implements IQuizControl
+<table width="100%" style="border-color:black;border-style:solid;border-width:1px">
+    <tr style="border-bottom: 1px solid black">
+        <td width="20%">
+            <label for="Questions">Question</label>
+        </td>
+        <td>
+            <p>@QuestionSet.QuestionText</p>
+        </td>
+    </tr>
+    <tr style="border-bottom: 1px solid black">
+        <td colspan="2" style="background-color:blue;">
+            <font color="White">
+                Please choose all that applies
+            </font>
+        </td>
+
+    </tr>
+    @foreach (var answer in QuestionSet?.Answers)
+    {
+        <tr>
+            <td>
+                <input type="checkbox" @onchange="@(e=>ManageUserAnswer(answer.AnswerKey,e.Value))" />
+            </td>
+            <td>
+                @answer.AnswerText
+            </td>
+        </tr>
+    }
+    <tr style="border-bottom: 1px solid black">
+        <td>
+            Result
+        </td>
+        <td>
+            @ResultCaption;
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Correct Answer
+        </td>
+        <td>
+            @foreach (var answer in QuestionSet?.Answers)
+            {
+                <p>
+                    @answer.AnswerText;
+                </p>
+                <br />
+            }
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <button class="btn btn-primary"
+                    @onclick="@(async e => await ValidateSubmit(buttonCaption))">
+                @buttonCaption
+            </button>
+        </td>
+    </tr>
+</table>
+
+@code {
+    [Parameter]
+    public QAndA QuestionSet { set; get; }
+    [Parameter]
+    public string NextQuestionOrDone { set; get; }
+    private string buttonCaption="Validate";
+    bool ResultState;
+    string ResultCaption;
+    public EventCallback<bool> OnCompleted { get; set; }
+    private List<string> UserAnswer = new List<string>();
+    private void ManageUserAnswer(string answerkey, object checkState)
+    {
+        bool checkResult = (bool)checkState;
+        if (checkResult)
+        {
+            if (!(UserAnswer.Any() && (UserAnswer.Contains(answerkey))))
+                UserAnswer.Add(answerkey);
+        }
+        else
+        {
+            if ((UserAnswer.Any() && (UserAnswer.Contains(answerkey))))
+                UserAnswer.Remove(answerkey);
+        }
+
+    }
+    private async Task ValidateSubmit(string caption)
+    {
+        if (caption=="Validate")
+        {
+
+            ResultState = Enumerable.SequenceEqual(QuestionSet?.AnswerKeys.OrderBy(e => e), UserAnswer.OrderBy(e => e));
+            ResultCaption = (ResultState) ? "Correct" : "Wrong";
+            buttonCaption = NextQuestionOrDone;
+        }
+        else if (caption== NextQuestionOrDone)
+        {
+            await OnCompleted.InvokeAsync(ResultState);
+        }
+    }
+}
