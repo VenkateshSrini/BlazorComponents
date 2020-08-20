@@ -1,0 +1,49 @@
+﻿@page "/QuizContainer"
+@using System.Text.Json;
+@inject HttpClient httpClient
+@inject NavigationManager UriHelper
+@if (currentQuiz == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MultiChoiceQuestion NextQuestionOrDone="@buttonText" QuestionSet="@currentQuiz" OnCompleted="RecordResponse"/>
+}
+@code {
+    private CourseQuiz courseQuiz = new CourseQuiz();
+    private QAndA currentQuiz;
+    private int currentQuizIdx=0;
+    private string buttonText;
+    private Dictionary<int, bool> UserResponses = new Dictionary<int, bool>();
+    protected override async Task OnInitializedAsync()
+    {
+        var baseUri = UriHelper.BaseUri.ToString();
+        //var response = await httpClient.GetStringAsync($"{baseUri}api/QAndA?courseId=Coo1");
+        courseQuiz = await httpClient.GetFromJsonAsync<CourseQuiz>($"{baseUri}api/QAndA?courseId=Coo1");
+        courseQuiz.Quiz.Shuffle();
+        ManageQuizQuestion();
+
+    }
+    private void ManageQuizQuestion()
+    {
+        if (currentQuizIdx< courseQuiz.Quiz.Count)
+            currentQuiz = courseQuiz.Quiz[currentQuizIdx];
+        if (currentQuizIdx == courseQuiz.Quiz.Count - 1)
+            buttonText = "Done";
+        else
+            buttonText = "NextQuestion";
+        if (currentQuizIdx > 0)
+            StateHasChanged();
+
+
+    }
+    public void RecordResponse(bool result)
+    {
+        UserResponses[currentQuiz.QuestionID] = result;
+        currentQuizIdx++;
+        ManageQuizQuestion();
+
+
+    }
+}

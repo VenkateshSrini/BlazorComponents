@@ -7,6 +7,10 @@ using BlazorComponent.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.IdGenerators;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace BlazorComponent.Server.Controllers
 {
@@ -20,6 +24,7 @@ namespace BlazorComponent.Server.Controllers
         {
             this.quizRepo = quizRepo;
             this.logger = logger;
+            
         }
         [HttpPost]
         public async Task<ActionResult<CourseQuiz>> Add(CourseQuiz courseQuiz)
@@ -48,6 +53,7 @@ namespace BlazorComponent.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<CourseQuiz>> GetQuiz(string courseId)
         {
+            
             try
             {
                 if (!string.IsNullOrWhiteSpace(courseId))

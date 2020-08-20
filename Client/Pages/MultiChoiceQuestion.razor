@@ -32,7 +32,7 @@
             Result
         </td>
         <td>
-            @ResultCaption;
+            @ResultCaption
         </td>
     </tr>
     <tr>
@@ -40,13 +40,7 @@
             Correct Answer
         </td>
         <td>
-            @foreach (var answer in QuestionSet?.Answers)
-            {
-                <p>
-                    @answer.AnswerText;
-                </p>
-                <br />
-            }
+          @correctAnswer
         </td>
     </tr>
     <tr>
@@ -67,6 +61,8 @@
     private string buttonCaption="Validate";
     bool ResultState;
     string ResultCaption;
+    string correctAnswer;
+    [Parameter]
     public EventCallback<bool> OnCompleted { get; set; }
     private List<string> UserAnswer = new List<string>();
     private void ManageUserAnswer(string answerkey, object checkState)
@@ -92,6 +88,10 @@
             ResultState = Enumerable.SequenceEqual(QuestionSet?.AnswerKeys.OrderBy(e => e), UserAnswer.OrderBy(e => e));
             ResultCaption = (ResultState) ? "Correct" : "Wrong";
             buttonCaption = NextQuestionOrDone;
+            foreach(var anskey in QuestionSet?.AnswerKeys)
+            {
+                correctAnswer += QuestionSet?.Answers.FirstOrDefault(ans => ans.AnswerKey == anskey)?.AnswerText + ";";
+            }
         }
         else if (caption== NextQuestionOrDone)
         {

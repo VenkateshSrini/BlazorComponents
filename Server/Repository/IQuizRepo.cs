@@ -9,6 +9,6 @@ namespace BlazorComponent.Server.Repository
     public interface IQuizRepo
     {
         Task<CourseQuiz> AddQuizAsync(CourseQuiz courseQuiz);
-        Task<List<CourseQuiz>> GetQuizAsync(string courseId);
+        Task<CourseQuiz> GetQuizAsync(string courseId);
     }
 }

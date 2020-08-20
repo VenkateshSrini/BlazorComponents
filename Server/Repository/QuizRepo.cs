@@ -3,6 +3,9 @@ using BlazorComponent.Shared;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.IdGenerators;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -30,19 +33,28 @@ namespace BlazorComponent.Server.Repository
 
             courseQuizCollection = db.GetCollection<CourseQuiz>(collectionName);
             this.logger = logger;
+            if (!BsonClassMap.IsClassMapRegistered(typeof(CourseQuiz)))
+                BsonClassMap.RegisterClassMap<CourseQuiz>(cm =>
+                {
+                    cm.AutoMap();
+                    cm.MapIdProperty(c => c.id)
+                        .SetIdGenerator(StringObjectIdGenerator.Instance)
+                        .SetSerializer(new StringSerializer(BsonType.ObjectId));
+                });
         }
 
         public async Task<CourseQuiz> AddQuizAsync(CourseQuiz courseQuiz)
         {
+            courseQuiz.id = ObjectId.GenerateNewId().ToString();
             await courseQuizCollection.InsertOneAsync(courseQuiz);
             return courseQuiz;
         }
 
-        public async Task<List<CourseQuiz>> GetQuizAsync(string courseId)
+        public async Task<CourseQuiz> GetQuizAsync(string courseId)
         {
             return (await courseQuizCollection.FindAsync(
                 courseQuiz => courseQuiz.CourseID == courseId))
-                .ToList();
+                .FirstOrDefault();
         }
     }
 }
