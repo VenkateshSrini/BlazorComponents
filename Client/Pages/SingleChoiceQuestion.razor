@@ -11,19 +11,20 @@
     <tr style="border-bottom: 1px solid black">
         <td colspan="2" style="background-color:blue;">
             <font color="White">
-                Please choose all that applies
+                Please choose only one that applies
             </font>
         </td>
-
     </tr>
     @foreach (var answer in QuestionSet?.Answers)
     {
         <tr>
             <td colspan="2">
-                <input type="checkbox" @onchange="@(e=>ManageUserAnswer(answer.AnswerKey,e.Value))" id="@answer.AnswerKey"/>
-                <label for="@answer.AnswerKey">@answer.AnswerText</label>
+                <div>
+                    <input type="radio" name="answerGrp" id="@answer.AnswerKey" value="@answer.AnswerKey"
+                           @onchange="ManageUserAnswer" />
+                    <label for="@answer.AnswerKey">@answer.AnswerText</label>
+                </div>
             </td>
-          
         </tr>
     }
     <tr style="border-bottom: 1px solid black">
@@ -39,7 +40,7 @@
             Correct Answer
         </td>
         <td>
-          @correctAnswer
+            @correctAnswer
         </td>
     </tr>
     <tr>
@@ -57,44 +58,35 @@
     public QAndA QuestionSet { set; get; }
     [Parameter]
     public string NextQuestionOrDone { set; get; }
-    private string buttonCaption="Validate";
+    private string buttonCaption = "Validate";
     bool ResultState;
     string ResultCaption;
     string correctAnswer;
     [Parameter]
     public EventCallback<bool> OnCompleted { get; set; }
-    private List<string> UserAnswer = new List<string>();
-    private void ManageUserAnswer(string answerkey, object checkState)
+    private string UserAnswer;
+    private void ManageUserAnswer(ChangeEventArgs args)
     {
-        bool checkResult = (bool)checkState;
-        if (checkResult)
-        {
-            if (!(UserAnswer.Any() && (UserAnswer.Contains(answerkey))))
-                UserAnswer.Add(answerkey);
-        }
-        else
-        {
-            if ((UserAnswer.Any() && (UserAnswer.Contains(answerkey))))
-                UserAnswer.Remove(answerkey);
-        }
 
+        UserAnswer = args.Value.ToString();
     }
     private async Task ValidateSubmit(string caption)
     {
-        if (caption=="Validate")
+        if (caption == "Validate")
         {
 
-            ResultState = Enumerable.SequenceEqual(QuestionSet?.AnswerKeys.OrderBy(e => e), UserAnswer.OrderBy(e => e));
+            ResultState = (string.Compare(UserAnswer, QuestionSet.AnswerKeys[0]) == 0);
             ResultCaption = (ResultState) ? "Correct" : "Wrong";
             buttonCaption = NextQuestionOrDone;
-            foreach(var anskey in QuestionSet?.AnswerKeys)
+            foreach (var anskey in QuestionSet?.AnswerKeys)
             {
-                correctAnswer += QuestionSet?.Answers.FirstOrDefault(ans => ans.AnswerKey == anskey)?.AnswerText + ";";
+                correctAnswer += QuestionSet?.Answers.FirstOrDefault(ans => ans.AnswerKey == anskey)?.AnswerText;
             }
         }
-        else if (caption== NextQuestionOrDone)
+        else if (caption == NextQuestionOrDone)
         {
             await OnCompleted.InvokeAsync(ResultState);
         }
     }
+
 }
