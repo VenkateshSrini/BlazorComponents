@@ -2,51 +2,46 @@
 @using System.Threading.Tasks;
 @using BlazorComponent.Client.InterApp;
 @using System.Timers;
-@inject IJSRuntime jsRuntime;
+@inject Blazored.LocalStorage.ILocalStorageService localStore;
+
 @inject BlazorComponent.Client.InterApp.Services.IStateManagement viewState;
-@implements IDisposable;
-@implements IAsyncDisposable;
+
+
 
 <div>
-    <video id="vide_plyr"
-           class="video-js"
-           controls
-           data-setup="{}">
+    <BlazoredVideo VideoEventOptions="options" TimeUpdateEvent="OnTimeUpdate"
+                   class="w-100"
+                   style="max-width:800px;"
+                   controls="controls">
         <source src="@videoSource" type="@videoType" />
-
-    </video>
+    </BlazoredVideo>
 </div>
 @code {
     [Parameter]
     public string Key { get; set; }
     public string videoSource { get; set; }
-    private Timer timer = new Timer(1000);
-
+    
+    Dictionary<VideoEvents, VideoStateOptions> options = new Dictionary<VideoEvents, VideoStateOptions>();
+    VideoState videoState;
     public string videoType { get; set; }
     protected override void OnInitialized()
     {
         videoSource = viewState.GetState<string>("videoURL");
         videoType = viewState.GetState<string>("videoType");
-        timer.Elapsed += async (sender, e) => await HandleTimer(sender, e);
-        timer.Enabled = true;
-        timer.Start();
+        
+        options[VideoEvents.TimeUpdate] = new VideoStateOptions { CurrentTime = true, Duration = true };
 
     }
-    public async Task HandleTimer(object source, ElapsedEventArgs e)
+  
+    void OnTimeUpdate(VideoState state)
     {
-        await jsRuntime.InvokeVoidAsync("getVideoDetails", "vide_plyr", Key);
-    }
-    public async ValueTask DisposeAsync()
-    {
-        await jsRuntime.InvokeVoidAsync("disposePlayer", "vide_plyr");
-        Dispose();
-
-    }
-    public void Dispose()
-    {
-
-        timer.Dispose();
-        GC.SuppressFinalize(this);
+        videoState = state;
+        var videoDetails = new videoDetails
+        {
+            duration = Convert.ToSingle(videoState.Duration),
+            remainingTime = Convert.ToSingle(videoState.Duration) - Convert.ToSingle(videoState.CurrentTime)
+        };
+        localStore.SetItemAsync<videoDetails>(Key, videoDetails).GetAwaiter().GetResult();
 
     }
 
